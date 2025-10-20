@@ -1,0 +1,17 @@
+# Rust
+/target
+**/*.rs.bk
+*.pdb
+# Note: Cargo.lock should be committed for binary crates (which this is)
+
+# Nix
+result
+.direnv
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
