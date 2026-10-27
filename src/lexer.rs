@@ -14,8 +14,9 @@ pub enum Token {
     StarStar, // **
 
     // Dice
-    D,     // d
-    DiceF, // dF (FATE dice)
+    D,           // d
+    DiceF,       // dF (FATE dice)
+    DiceDuality, // dD (Daggerheart Duality Dice)
 
     // Comparison operators
     Greater,
@@ -171,6 +172,7 @@ impl Lexer {
 
             let token = match ident.as_str() {
                 "df" => Token::DiceF,
+                "dd" => Token::DiceDuality,
                 "d" => Token::D,
                 "f" => Token::F,
                 "kh" => Token::KH,

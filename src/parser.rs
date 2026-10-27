@@ -140,6 +140,10 @@ impl Parser {
                 // Check if this is a dice roll (e.g., 1d20 or 4dF)
                 if matches!(self.current_token, Token::D | Token::DiceF) {
                     self.parse_dice_from_number(num)
+                } else if self.current_token == Token::DiceDuality {
+                    Err(DiceError::InvalidDiceNotation(
+                        "dD is always one pair of Duality Dice and takes no count".to_string(),
+                    ))
                 } else {
                     self.skip_labels();
                     Ok(Expr::Literal(num))
@@ -152,6 +156,11 @@ impl Parser {
             Token::DiceF => {
                 // FATE dice without explicit count
                 self.parse_fate_dice_from_number(1)
+            }
+            Token::DiceDuality => {
+                self.advance();
+                self.skip_labels();
+                Ok(Expr::DualityDice)
             }
             Token::LeftParen => {
                 self.advance();
@@ -588,6 +597,24 @@ mod tests {
     #[test]
     fn test_parse_rejects_trailing_tokens() {
         let mut parser = Parser::new("1d20+2kh").unwrap();
+        assert!(parser.parse().is_err());
+    }
+
+    #[test]
+    fn test_parse_duality_dice() {
+        let mut parser = Parser::new("dD").unwrap();
+        assert_eq!(parser.parse().unwrap(), Expr::DualityDice);
+    }
+
+    #[test]
+    fn test_parse_duality_dice_with_label() {
+        let mut parser = Parser::new("dD[Duality]+2[Agility]").unwrap();
+        assert!(parser.parse().is_ok());
+    }
+
+    #[test]
+    fn test_parse_duality_dice_rejects_count() {
+        let mut parser = Parser::new("2dD").unwrap();
         assert!(parser.parse().is_err());
     }
 }

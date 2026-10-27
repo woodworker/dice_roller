@@ -18,6 +18,9 @@ pub enum Expr {
         modifiers: Vec<Modifier>,
     },
 
+    /// Daggerheart Duality Dice: dD (one Hope d12 and one Fear d12)
+    DualityDice,
+
     /// Binary operation
     BinaryOp {
         op: BinaryOperator,

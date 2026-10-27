@@ -100,11 +100,16 @@ fn run_roll(notation: &str, cli: &Cli) {
 }
 
 fn print_result(result: &dice_roller::RollResult) {
+    let duality = result
+        .duality_dice()
+        .map(|d| format!(" {}", d.describe().yellow().bold()))
+        .unwrap_or_default();
     println!(
-        "{} {} = {}",
+        "{} {} = {}{}",
         "Roll:".cyan().bold(),
         result.expression,
-        result.total.to_string().green().bold()
+        result.total.to_string().green().bold(),
+        duality
     );
 }
 
@@ -168,6 +173,7 @@ fn print_help() {
     println!("  {} - Roll 2d10, reroll 1s and 2s", "2d10r<2".yellow());
     println!("  {}  - Roll 10d6, count successes >= 5", "10d6>5".yellow());
     println!("  {}    - Roll 4 FATE dice", "4dF".yellow());
+    println!("  {}  - Daggerheart Duality Dice + 2", "dD+2".yellow());
     println!("\n{}:", "Commands".cyan().bold());
     println!("  {}     - Show this help", "help".yellow());
     println!("  {}     - Exit interactive mode", "exit".yellow());

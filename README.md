@@ -7,6 +7,7 @@ A comprehensive CLI dice roller built in Rust, supporting Roll20-style dice nota
 ### Dice Types
 - **Standard Dice**: `NdX` (e.g., `3d6`, `1d20`)
 - **FATE Dice**: `NdF` (e.g., `4dF`)
+- **Daggerheart Duality Dice**: `dD` (Hope d12 + Fear d12, see [Daggerheart Rolls](#daggerheart-rolls))
 - **Computed Dice**: `(2+3)d6`, `3d(4+2)`
 
 ### Roll Modifiers
@@ -86,6 +87,9 @@ dice_roller "10d6>5"
 
 # FATE dice
 dice_roller "4dF"
+
+# Daggerheart Duality Dice
+dice_roller "dD+2"
 ```
 
 ### Options
@@ -150,6 +154,56 @@ dice_roller "2d6!+1d4"
 ```bash
 dice_roller "{1d8,1d6}kh1"
 ```
+
+## Daggerheart Rolls
+
+[Daggerheart](https://www.daggerheart.com/) uses a pair of d12s called
+**Duality Dice**: one Hope die and one Fear die. Roll them with `dD`.
+
+An action roll is the Duality Dice plus your trait and any other modifiers:
+
+```bash
+dice_roller "dD+2"
+# Roll: dD+2 = 14 with Hope (Hope 8, Fear 4)
+```
+
+The result shows the total and which die rolled higher:
+
+| Result | Meaning |
+|---|---|
+| `with Hope` | The Hope die is higher. You gain a Hope. |
+| `with Fear` | The Fear die is higher. The GM gains a Fear. |
+| `Critical Success` | Both dice show the same number. The roll succeeds regardless of the total. You gain a Hope and clear a Stress; on an attack roll you deal extra damage. |
+
+There is no Difficulty in the formula. Tell the GM your total and the
+outcome ("14 with Hope"), and they decide whether it succeeds.
+
+### Modifiers, Advantage and Disadvantage
+
+Modifiers are plain numbers, and labels help you remember what each one is:
+
+```bash
+# Agility +2 and an Experience +2
+dice_roller "dD+2[Agility]+2[Experience]"
+```
+
+Advantage adds a d6, disadvantage subtracts a d6. They cancel each other out,
+so you only ever roll one of them:
+
+```bash
+# With advantage
+dice_roller "dD+2[Agility]+1d6[Advantage]"
+# Roll: dD+2[Agility]+1d6[Advantage] = 26 with Hope (Hope 12, Fear 9)
+
+# With disadvantage
+dice_roller "dD+2[Agility]-1d6[Disadvantage]"
+```
+
+### Reaction Rolls
+
+Reaction rolls use the same formula (`dD+2`). They don't generate Hope or
+Fear, so just ignore the "with Hope/Fear" part of the result. A critical
+success on a reaction roll doesn't give Hope or clear Stress either.
 
 ## Development
 

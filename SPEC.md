@@ -21,6 +21,22 @@ A CLI dice roller supporting Roll20-style dice notation with comprehensive modif
 - Number of sides can be computed: `3d(4+2)`
 - Computed dice count rounds to nearest integer
 
+### 1.4 Daggerheart Duality Dice (dD)
+- Format: `dD` (case-insensitive, `dd` works too)
+- Rolls one pair of d12s: a Hope die and a Fear die
+- Value of `dD` is the sum of both dice (2-24)
+- `dD` always means exactly one pair; a count such as `2dD` is an error
+- Dice modifiers (keep/drop, exploding, ...) are not supported on `dD`
+- The result reports which die decided the roll:
+  - **with Hope**: Hope die is higher
+  - **with Fear**: Fear die is higher
+  - **Critical Success**: both dice show the same number
+- No Difficulty is evaluated; the GM decides success or failure from the total
+- Advantage and disadvantage are plain dice: `dD+1d6` / `dD-1d6`
+- Example: `dD+2[Agility]+1d6[Advantage]`
+- Output: `dD+2 = 14 with Hope (Hope 8, Fear 4)`
+- If an expression contains several `dD`, the first one determines the reported outcome
+
 ## 2. Mathematical Operations
 
 ### 2.1 Basic Operators
@@ -133,7 +149,7 @@ A CLI dice roller supporting Roll20-style dice notation with comprehensive modif
 - Inline labels: `2d10+5[Fire Damage]`
 - Appears as tooltip on results
 - Multiple labels: `2d10+5[Fire] + 3d6[Ice]`
-- Labels can follow plain numbers: `1d20+2[Strength]`
+- Labels can follow numbers and Duality Dice: `dD+2[Agility]`
 - Labels never change the result
 
 ## 6. Output Format
@@ -145,6 +161,7 @@ A CLI dice roller supporting Roll20-style dice notation with comprehensive modif
 - Mark critical successes/failures
 - Show exploded dice
 - Display success counts
+- Show Hope/Fear/Critical outcome for Duality Dice
 
 ### 6.2 Result Components
 ```

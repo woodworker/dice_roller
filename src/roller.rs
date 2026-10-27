@@ -43,6 +43,11 @@ impl DiceRoller {
 
             Expr::FateDice { count, modifiers } => self.evaluate_fate_dice(count, modifiers),
 
+            Expr::DualityDice => Ok(RollDetails::DualityDice(DualityDiceResult {
+                hope: self.roll_die(12),
+                fear: self.roll_die(12),
+            })),
+
             Expr::BinaryOp { op, left, right } => self.evaluate_binary_op(*op, left, right),
 
             Expr::UnaryOp { op, expr } => self.evaluate_unary_op(*op, expr),
@@ -60,6 +65,7 @@ impl DiceRoller {
             RollDetails::Literal(n) => *n,
             RollDetails::Dice(d) => d.total,
             RollDetails::FateDice(f) => f.total,
+            RollDetails::DualityDice(d) => d.total(),
             RollDetails::BinaryOp { result, .. } => *result,
             RollDetails::Function { result, .. } => *result,
             RollDetails::Group { result, .. } => *result,
@@ -599,5 +605,26 @@ mod tests {
                 assert!(*last < 5);
             }
         }
+    }
+
+    #[test]
+    fn test_duality_dice() {
+        for seed in 0..100 {
+            let mut roller = DiceRoller::with_seed(seed);
+            let expr = Expr::binary_op(BinaryOperator::Add, Expr::DualityDice, Expr::Literal(3));
+            let result = roller.roll(&expr).unwrap();
+            let duality = result.duality_dice().unwrap();
+            assert!((1..=12).contains(&duality.hope));
+            assert!((1..=12).contains(&duality.fear));
+            assert_eq!(result.total, duality.hope + duality.fear + 3);
+        }
+    }
+
+    #[test]
+    fn test_duality_outcome() {
+        let roll = |hope, fear| DualityDiceResult { hope, fear }.duality();
+        assert_eq!(roll(9, 5), Duality::Hope);
+        assert_eq!(roll(3, 7), Duality::Fear);
+        assert_eq!(roll(6, 6), Duality::Critical);
     }
 }

@@ -23,6 +23,9 @@ pub enum RollDetails {
     /// Result of FATE dice
     FateDice(FateDiceResult),
 
+    /// Result of Daggerheart Duality Dice
+    DualityDice(DualityDiceResult),
+
     /// Result of a binary operation
     BinaryOp {
         op: String,
@@ -85,6 +88,48 @@ pub struct FateDiceResult {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct DualityDiceResult {
+    /// The Hope d12
+    pub hope: i64,
+
+    /// The Fear d12
+    pub fear: i64,
+}
+
+/// Which Duality Die decided the roll
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Duality {
+    Hope,
+    Fear,
+    /// Both dice show the same number
+    Critical,
+}
+
+impl DualityDiceResult {
+    pub fn total(&self) -> i64 {
+        self.hope + self.fear
+    }
+
+    pub fn duality(&self) -> Duality {
+        match self.hope.cmp(&self.fear) {
+            std::cmp::Ordering::Greater => Duality::Hope,
+            std::cmp::Ordering::Less => Duality::Fear,
+            std::cmp::Ordering::Equal => Duality::Critical,
+        }
+    }
+
+    /// Short description, e.g. "with Hope (Hope 9, Fear 5)"
+    pub fn describe(&self) -> String {
+        let outcome = match self.duality() {
+            Duality::Hope => "with Hope",
+            Duality::Fear => "with Fear",
+            Duality::Critical => "Critical Success",
+        };
+        format!("{} (Hope {}, Fear {})", outcome, self.hope, self.fear)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct DieRoll {
     /// The value rolled
     pub value: i64,
@@ -127,6 +172,20 @@ impl RollResult {
         }
     }
 
+    /// The Duality Dice of this roll, if the expression contains `dD`
+    pub fn duality_dice(&self) -> Option<&DualityDiceResult> {
+        fn find(details: &RollDetails) -> Option<&DualityDiceResult> {
+            match details {
+                RollDetails::DualityDice(d) => Some(d),
+                RollDetails::BinaryOp { left, right, .. } => find(left).or_else(|| find(right)),
+                RollDetails::Function { arg, .. } => find(arg),
+                RollDetails::Group { rolls, .. } => rolls.iter().find_map(find),
+                _ => None,
+            }
+        }
+        find(&self.details)
+    }
+
     /// Format the result as a human-readable string
     pub fn format(&self, verbose: bool) -> String {
         if verbose {
@@ -140,6 +199,9 @@ impl RollResult {
         let mut output = String::new();
         output.push_str(&format!("Expression: {}\n", self.expression));
         output.push_str(&format!("Total: {}\n", self.total));
+        if let Some(duality) = self.duality_dice() {
+            output.push_str(&format!("Duality: {}\n", duality.describe()));
+        }
         output.push_str(&self.format_details(&self.details, 0));
         output
     }
@@ -150,6 +212,14 @@ impl RollResult {
             RollDetails::Literal(n) => format!("{}Literal: {}\n", prefix, n),
             RollDetails::Dice(d) => self.format_dice_result(d, indent),
             RollDetails::FateDice(f) => self.format_fate_result(f, indent),
+            RollDetails::DualityDice(d) => format!(
+                "{}Duality Dice: Hope {}, Fear {}\n{}Total: {}\n",
+                prefix,
+                d.hope,
+                d.fear,
+                prefix,
+                d.total()
+            ),
             RollDetails::BinaryOp {
                 op,
                 left,
