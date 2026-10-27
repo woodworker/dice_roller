@@ -298,16 +298,18 @@ impl DiceRoller {
 
         for die in result.rolls.iter_mut() {
             let mut total = die.value;
+            let mut last_roll = die.value;
             die.compound_parts.push(die.value);
 
-            while cp.matches(total) {
+            // Compare each new roll, not the running total
+            while cp.matches(last_roll) {
                 if iterations > MAX_ITERATIONS {
                     return Err(DiceError::MaxIterationsExceeded);
                 }
 
-                let new_roll = self.roll_die(result.sides);
-                die.compound_parts.push(new_roll);
-                total += new_roll;
+                last_roll = self.roll_die(result.sides);
+                die.compound_parts.push(last_roll);
+                total += last_roll;
                 die.exploded = true;
                 iterations += 1;
             }
@@ -580,5 +582,22 @@ mod tests {
         let expr = Expr::fate_dice(Expr::Literal(4), vec![]);
         let result = roller.roll(&expr).unwrap();
         assert!(result.total >= -4 && result.total <= 4);
+    }
+
+    #[test]
+    fn test_compounding_compares_each_roll() {
+        // !!>5 used to compare the running total and never stopped
+        let expr = crate::Parser::new("8d6!!>5").unwrap().parse().unwrap();
+        for seed in 0..100 {
+            let result = DiceRoller::with_seed(seed).roll(&expr).unwrap();
+            let RollDetails::Dice(dice) = result.details else {
+                panic!("expected dice");
+            };
+            for die in dice.rolls {
+                let (last, parts) = die.compound_parts.split_last().unwrap();
+                assert!(parts.iter().all(|p| *p >= 5));
+                assert!(*last < 5);
+            }
+        }
     }
 }
