@@ -389,7 +389,7 @@ impl DiceRoller {
             .map(|(i, roll)| (i, roll.value))
             .collect();
 
-        indexed.sort_by(|a, b| b.1.cmp(&a.1));
+        indexed.sort_by_key(|a| std::cmp::Reverse(a.1));
 
         result.kept = indexed.iter().take(n).map(|(i, _)| *i).collect();
         result.dropped = indexed.iter().skip(n).map(|(i, _)| *i).collect();
@@ -408,7 +408,7 @@ impl DiceRoller {
             .map(|(i, roll)| (i, roll.value))
             .collect();
 
-        indexed.sort_by(|a, b| a.1.cmp(&b.1));
+        indexed.sort_by_key(|a| a.1);
 
         result.kept = indexed.iter().take(n).map(|(i, _)| *i).collect();
         result.dropped = indexed.iter().skip(n).map(|(i, _)| *i).collect();
@@ -471,11 +471,11 @@ impl DiceRoller {
     }
 
     fn apply_sort_ascending(&mut self, result: &mut DiceRollResult) {
-        result.rolls.sort_by(|a, b| a.value.cmp(&b.value));
+        result.rolls.sort_by_key(|a| a.value);
     }
 
     fn apply_sort_descending(&mut self, result: &mut DiceRollResult) {
-        result.rolls.sort_by(|a, b| b.value.cmp(&a.value));
+        result.rolls.sort_by_key(|a| std::cmp::Reverse(a.value));
     }
 
     fn resolve_compare_point(&self, cp: &ComparePoint, sides: i64) -> ComparePoint {
