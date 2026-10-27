@@ -36,7 +36,24 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Result<Expr> {
-        self.parse_expression()
+        let expr = self.parse_expression()?;
+
+        if self.current_token != Token::EOF {
+            return Err(DiceError::UnexpectedToken {
+                expected: "end of expression".to_string(),
+                found: format!("{:?}", self.current_token),
+                pos: self.position,
+            });
+        }
+
+        Ok(expr)
+    }
+
+    /// Skip labels on values that do not keep them, e.g. `+2[Agility]`
+    fn skip_labels(&mut self) {
+        while matches!(self.current_token, Token::Label(_)) {
+            self.advance();
+        }
     }
 
     // Expression -> Term ((+ | -) Term)*
@@ -124,6 +141,7 @@ impl Parser {
                 if matches!(self.current_token, Token::D | Token::DiceF) {
                     self.parse_dice_from_number(num)
                 } else {
+                    self.skip_labels();
                     Ok(Expr::Literal(num))
                 }
             }
@@ -559,5 +577,17 @@ mod tests {
         let mut parser = Parser::new("4dF").unwrap();
         let expr = parser.parse().unwrap();
         assert!(matches!(expr, Expr::FateDice { .. }));
+    }
+
+    #[test]
+    fn test_parse_labels_on_numbers() {
+        let mut parser = Parser::new("1d20+2[Strength]+1d4[Bless]").unwrap();
+        assert!(parser.parse().is_ok());
+    }
+
+    #[test]
+    fn test_parse_rejects_trailing_tokens() {
+        let mut parser = Parser::new("1d20+2kh").unwrap();
+        assert!(parser.parse().is_err());
     }
 }

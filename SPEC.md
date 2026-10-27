@@ -133,6 +133,8 @@ A CLI dice roller supporting Roll20-style dice notation with comprehensive modif
 - Inline labels: `2d10+5[Fire Damage]`
 - Appears as tooltip on results
 - Multiple labels: `2d10+5[Fire] + 3d6[Ice]`
+- Labels can follow plain numbers: `1d20+2[Strength]`
+- Labels never change the result
 
 ## 6. Output Format
 
@@ -184,6 +186,7 @@ Failures: N
 ## 8. Error Handling
 
 ### 8.1 Parse Errors
+- Unparsed trailing input (e.g. `1d20+2kh`)
 - Invalid syntax: Clear error message with position
 - Invalid dice notation: Explain valid formats
 - Mismatched parentheses: Show location
