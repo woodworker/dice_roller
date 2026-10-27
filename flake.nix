@@ -14,9 +14,8 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
-        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" "rust-analyzer" ];
-        };
+        # Same toolchain as CI, pinned in rust-toolchain.toml
+        rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       in
       let
         mkDiceRoller = buildType: pkgs.rustPlatform.buildRustPackage {
