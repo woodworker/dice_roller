@@ -2,13 +2,13 @@ pub mod ast;
 pub mod error;
 pub mod lexer;
 pub mod parser;
-pub mod roller;
 pub mod result;
+pub mod roller;
 
 pub use error::{DiceError, Result};
 pub use parser::Parser;
-pub use roller::DiceRoller;
 pub use result::RollResult;
+pub use roller::DiceRoller;
 
 /// Parse and evaluate a dice notation string
 pub fn roll(input: &str) -> Result<RollResult> {

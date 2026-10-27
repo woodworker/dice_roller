@@ -488,11 +488,7 @@ impl DiceRoller {
 
         // Otherwise sum kept dice
         if !result.kept.is_empty() {
-            result
-                .kept
-                .iter()
-                .map(|&i| result.rolls[i].value)
-                .sum()
+            result.kept.iter().map(|&i| result.rolls[i].value).sum()
         } else if !result.dropped.is_empty() {
             result
                 .rolls
@@ -506,11 +502,7 @@ impl DiceRoller {
         }
     }
 
-    fn apply_group_modifiers(
-        &self,
-        totals: &[i64],
-        modifiers: &[GroupModifier],
-    ) -> Result<i64> {
+    fn apply_group_modifiers(&self, totals: &[i64], modifiers: &[GroupModifier]) -> Result<i64> {
         let mut totals = totals.to_vec();
         let mut successes = None;
         let mut failures = None;
@@ -522,7 +514,7 @@ impl DiceRoller {
                     totals.truncate(*n);
                 }
                 GroupModifier::KeepLow(n) => {
-                    totals.sort_by(|a, b| a.cmp(b));
+                    totals.sort();
                     totals.truncate(*n);
                 }
                 GroupModifier::DropHigh(n) => {
@@ -530,7 +522,7 @@ impl DiceRoller {
                     totals = totals.into_iter().skip(*n).collect();
                 }
                 GroupModifier::DropLow(n) => {
-                    totals.sort_by(|a, b| a.cmp(b));
+                    totals.sort();
                     totals = totals.into_iter().skip(*n).collect();
                 }
                 GroupModifier::Success(cp) => {

@@ -150,7 +150,12 @@ impl RollResult {
             RollDetails::Literal(n) => format!("{}Literal: {}\n", prefix, n),
             RollDetails::Dice(d) => self.format_dice_result(d, indent),
             RollDetails::FateDice(f) => self.format_fate_result(f, indent),
-            RollDetails::BinaryOp { op, left, right, result } => {
+            RollDetails::BinaryOp {
+                op,
+                left,
+                right,
+                result,
+            } => {
                 let mut s = format!("{}Binary Op: {} = {}\n", prefix, op, result);
                 s.push_str(&self.format_details(left, indent + 1));
                 s.push_str(&self.format_details(right, indent + 1));

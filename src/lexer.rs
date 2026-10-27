@@ -14,8 +14,8 @@ pub enum Token {
     StarStar, // **
 
     // Dice
-    D,        // d
-    DiceF,    // dF (FATE dice)
+    D,     // d
+    DiceF, // dF (FATE dice)
 
     // Comparison operators
     Greater,
@@ -23,23 +23,23 @@ pub enum Token {
     Equal,
 
     // Modifiers
-    Bang,          // !
-    BangBang,      // !!
-    BangP,         // !p (penetrating)
-    K,             // k (keep)
-    KH,            // kh (keep high)
-    KL,            // kl (keep low)
-    Drop,          // d (when used as drop)
-    DH,            // dh (drop high)
-    DL,            // dl (drop low)
-    R,             // r (reroll)
-    RO,            // ro (reroll once)
-    F,             // f (failure)
-    CS,            // cs (critical success)
-    CF,            // cf (critical failure)
-    S,             // s (sort)
-    SA,            // sa (sort ascending)
-    SD,            // sd (sort descending)
+    Bang,     // !
+    BangBang, // !!
+    BangP,    // !p (penetrating)
+    K,        // k (keep)
+    KH,       // kh (keep high)
+    KL,       // kl (keep low)
+    Drop,     // d (when used as drop)
+    DH,       // dh (drop high)
+    DL,       // dl (drop low)
+    R,        // r (reroll)
+    RO,       // ro (reroll once)
+    F,        // f (failure)
+    CS,       // cs (critical success)
+    CF,       // cf (critical failure)
+    S,        // s (sort)
+    SA,       // sa (sort ascending)
+    SD,       // sd (sort descending)
 
     // Functions
     Floor,
@@ -72,7 +72,7 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(input: &str) -> Self {
         let chars: Vec<char> = input.chars().collect();
-        let current_char = chars.get(0).copied();
+        let current_char = chars.first().copied();
 
         Lexer {
             input: chars,
@@ -269,7 +269,7 @@ impl Lexer {
             }
             '[' => {
                 // Check if this is a label or a bracket for inline rolls
-                if self.peek(1).map_or(false, |c| c == '[') {
+                if self.peek(1) == Some('[') {
                     // It's [[ for inline roll
                     self.advance();
                     self.advance();

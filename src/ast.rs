@@ -26,16 +26,10 @@ pub enum Expr {
     },
 
     /// Unary operation
-    UnaryOp {
-        op: UnaryOperator,
-        expr: Box<Expr>,
-    },
+    UnaryOp { op: UnaryOperator, expr: Box<Expr> },
 
     /// Function call
-    Function {
-        name: FunctionName,
-        arg: Box<Expr>,
-    },
+    Function { name: FunctionName, arg: Box<Expr> },
 
     /// Grouped rolls: {Roll1, Roll2, ...}
     Group {
